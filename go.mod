@@ -1,3 +1,3 @@
-module github.com/t-hg/git-cleaner
+module github.com/tobiashort/git-cleaner
 
 go 1.19
