@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-type RunGitResult struct {
+type ExecutionResult struct {
 	path   string
 	output string
 	err    error
@@ -60,36 +60,36 @@ func run(cmd *exec.Cmd) (output string, err error) {
 	return output, nil
 }
 
-func runGit(path string, args ...string) RunGitResult {
+func runGit(path string, args ...string) ExecutionResult {
 	args = append([]string{"-C", path}, args...)
 	cmd := exec.Command("git", args...)
 	output, err := run(cmd)
-	return RunGitResult{path, output, err}
+	return ExecutionResult{path, output, err}
 }
 
-func gitResetHard(path string) RunGitResult {
+func gitResetHard(path string) ExecutionResult {
 	return runGit(path, "reset", "--hard")
 }
 
-func gitListBranches(path string) (branches []string, runGitResult RunGitResult) {
-	runGitResult = runGit(path, "branch", "--no-color")
-	if runGitResult.err != nil {
-		return nil, runGitResult
+func gitListBranches(path string) (branches []string, executionResult ExecutionResult) {
+	executionResult = runGit(path, "branch", "--no-color")
+	if executionResult.err != nil {
+		return nil, executionResult
 	}
-	for _, line := range strings.Split(runGitResult.output, "\n") {
+	for _, line := range strings.Split(executionResult.output, "\n") {
 		line = strings.TrimSpace(line)
 		line = strings.Replace(line, "* ", "", 1)
 		if line != "" {
 			branches = append(branches, line)
 		}
 	}
-	return branches, runGitResult
+	return branches, executionResult
 }
 
-func gitCheckoutMaster(path string) RunGitResult {
-	branches, runGitResult := gitListBranches(path)
-	if runGitResult.err != nil {
-		return runGitResult
+func gitCheckoutMaster(path string) ExecutionResult {
+	branches, executionResult := gitListBranches(path)
+	if executionResult.err != nil {
+		return executionResult
 	}
 	var branch string
 	if sliceContains(branches, "master") {
@@ -98,76 +98,64 @@ func gitCheckoutMaster(path string) RunGitResult {
 		branch = "main"
 	}
 	if branch == "" {
-		return RunGitResult{
-			runGitResult.path,
-			runGitResult.output,
+		return ExecutionResult{
+			executionResult.path,
+			executionResult.output,
 			fmt.Errorf("no master/main branch found"),
 		}
 	}
 	return runGit(path, "checkout", branch)
 }
 
-func gitClean(path string) RunGitResult {
+func gitClean(path string) ExecutionResult {
 	return runGit(path, "clean", "-fd")
 }
 
-func gitPull(path string) RunGitResult {
+func gitPull(path string) ExecutionResult {
 	return runGit(path, "pull", "-p")
 }
 
-func gitRemoveLocalBranches(path string) RunGitResult {
-	branches, runGitResult := gitListBranches(path)
-	if runGitResult.err != nil {
-		return runGitResult
+func gitRemoveLocalBranches(path string) ExecutionResult {
+	branches, executionResult := gitListBranches(path)
+	if executionResult.err != nil {
+		return executionResult
 	}
 	for _, branch := range branches {
 		if branch == "master" || branch == "main" {
 			continue
 		}
-		runGitResult = runGit(path, "branch", "-D", branch)
-		if runGitResult.err != nil {
-			return runGitResult
+		executionResult = runGit(path, "branch", "-D", branch)
+		if executionResult.err != nil {
+			return executionResult
 		}
 	}
-	return RunGitResult{path, "", nil}
+	return ExecutionResult{path, "", nil}
 }
 
-func cleanGitRepository(path string) RunGitResult {
-	fmt.Println("Cleaning at", path)
-	var runGitResult RunGitResult
-	runGitResult = gitResetHard(path);           if runGitResult.err != nil { return runGitResult }
-	runGitResult = gitCheckoutMaster(path);      if runGitResult.err != nil { return runGitResult }
-	runGitResult = gitClean(path);               if runGitResult.err != nil { return runGitResult }
-	runGitResult = gitPull(path);                if runGitResult.err != nil { return runGitResult }
-	runGitResult = gitRemoveLocalBranches(path); if runGitResult.err != nil { return runGitResult }
-	fmt.Println("Cleaned at", path)
-	return RunGitResult{path, "", nil}
+func cleanGitRepository(path string, waitGroup *sync.WaitGroup) {
+	var executionResult ExecutionResult
+	executionResult = gitResetHard(path);           if executionResult.err != nil { goto errorCase }
+	executionResult = gitCheckoutMaster(path);      if executionResult.err != nil { goto errorCase }
+	executionResult = gitClean(path);               if executionResult.err != nil { goto errorCase }
+	executionResult = gitPull(path);                if executionResult.err != nil { goto errorCase }
+	executionResult = gitRemoveLocalBranches(path); if executionResult.err != nil { goto errorCase }
+	fmt.Println("[DONE]", path)
+	waitGroup.Done()
+	return
+errorCase:
+	fmt.Println("[ERROR]", path)
+	fmt.Println(executionResult.err)
+	fmt.Println(executionResult.output)
+	waitGroup.Done()
+	return
 }
 
 func main() {
 	gitRepositories := findGitRepositories()
 	waitGroup := sync.WaitGroup{}
 	waitGroup.Add(len(gitRepositories))
-	results := make(chan RunGitResult, len(gitRepositories))
 	for _, path := range gitRepositories {
-		go func(path string, results chan RunGitResult) {
-			results <- cleanGitRepository(path)
-			waitGroup.Done()
-		}(path, results)
+		go cleanGitRepository(path, &waitGroup)
 	}
 	waitGroup.Wait()
-	for {
-		select {
-		case result := <-results:
-			if result.err != nil {
-				fmt.Println("Error at", result.path)
-				fmt.Println(result.err)
-				fmt.Print(result.output)
-			}
-		default:
-			goto done
-		}
-	}
-done:
-	close(results)
 }
