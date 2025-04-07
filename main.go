@@ -6,8 +6,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
+
+	"github.com/tobiashort/cfmt"
 )
 
 type ExecutionResult struct {
@@ -25,15 +28,6 @@ func must(err error) {
 func must2[T any](v T, err error) T {
 	must(err)
 	return v
-}
-
-func sliceContains[T comparable](slice []T, search T) bool {
-	for _, item := range slice {
-		if item == search {
-			return true
-		}
-	}
-	return false
 }
 
 func findGitRepositories() []string {
@@ -92,9 +86,9 @@ func gitCheckoutMaster(path string) ExecutionResult {
 		return executionResult
 	}
 	var branch string
-	if sliceContains(branches, "master") {
+	if slices.Contains(branches, "master") {
 		branch = "master"
-	} else if sliceContains(branches, "main") {
+	} else if slices.Contains(branches, "main") {
 		branch = "main"
 	}
 	if branch == "" {
@@ -134,16 +128,31 @@ func gitRemoveLocalBranches(path string) ExecutionResult {
 
 func cleanGitRepository(path string, waitGroup *sync.WaitGroup) {
 	var executionResult ExecutionResult
-	executionResult = gitResetHard(path);           if executionResult.err != nil { goto errorCase }
-	executionResult = gitCheckoutMaster(path);      if executionResult.err != nil { goto errorCase }
-	executionResult = gitClean(path);               if executionResult.err != nil { goto errorCase }
-	executionResult = gitPull(path);                if executionResult.err != nil { goto errorCase }
-	executionResult = gitRemoveLocalBranches(path); if executionResult.err != nil { goto errorCase }
-	fmt.Println("[DONE]", path)
+	executionResult = gitResetHard(path)
+	if executionResult.err != nil {
+		goto errorCase
+	}
+	executionResult = gitCheckoutMaster(path)
+	if executionResult.err != nil {
+		goto errorCase
+	}
+	executionResult = gitClean(path)
+	if executionResult.err != nil {
+		goto errorCase
+	}
+	executionResult = gitPull(path)
+	if executionResult.err != nil {
+		goto errorCase
+	}
+	executionResult = gitRemoveLocalBranches(path)
+	if executionResult.err != nil {
+		goto errorCase
+	}
+	cfmt.Println("[#g{DONE}]", path)
 	waitGroup.Done()
 	return
 errorCase:
-	fmt.Println("[ERROR]", path)
+	cfmt.Println("[#r{ERROR}]", path)
 	fmt.Println(executionResult.err)
 	fmt.Println(executionResult.output)
 	waitGroup.Done()
