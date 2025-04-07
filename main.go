@@ -70,7 +70,7 @@ func gitListBranches(path string) (branches []string, executionResult ExecutionR
 	if executionResult.err != nil {
 		return nil, executionResult
 	}
-	for _, line := range strings.Split(executionResult.output, "\n") {
+	for line := range strings.SplitSeq(executionResult.output, "\n") {
 		line = strings.TrimSpace(line)
 		line = strings.Replace(line, "* ", "", 1)
 		if line != "" {
