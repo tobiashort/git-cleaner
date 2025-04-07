@@ -34,63 +34,91 @@ func makeRegexp(name string) *regexp.Regexp {
 
 func Print(a ...any) {
 	for i := range a {
-		a[i] = clr(fmt.Sprint(a[i]))
+		a[i] = clr(fmt.Sprint(a[i]), AnsiReset)
 	}
 	fmt.Print(a...)
 }
 
 func Printf(format string, a ...any) {
-	fmt.Printf(clr(format), a...)
+	fmt.Printf(clr(format, AnsiReset), a...)
 }
 
 func Println(a ...any) {
 	for i := range a {
-		a[i] = clr(fmt.Sprint(a[i]))
+		a[i] = clr(fmt.Sprint(a[i]), AnsiReset)
 	}
 	fmt.Println(a...)
 }
 
 func Fprint(w io.Writer, a ...any) {
 	for i := range a {
-		a[i] = clr(fmt.Sprint(a[i]))
+		a[i] = clr(fmt.Sprint(a[i]), AnsiReset)
 	}
 	fmt.Fprint(w, a...)
 }
 
 func Fprintf(w io.Writer, format string, a ...any) {
-	fmt.Fprintf(w, clr(format), a...)
+	fmt.Fprintf(w, clr(format, AnsiReset), a...)
 }
 
 func Fprintln(w io.Writer, a ...any) {
 	for i := range a {
-		a[i] = clr(fmt.Sprint(a[i]))
+		a[i] = clr(fmt.Sprint(a[i]), AnsiReset)
 	}
 	fmt.Fprintln(w, a...)
 }
 
-func Sprint(a ...any) string {
-	for i := range a {
-		a[i] = clr(fmt.Sprint(a[i]))
+func stoc(s string) AnsiColor {
+	switch s {
+	case "r":
+		return AnsiRed
+	case "g":
+		return AnsiGreen
+	case "y":
+		return AnsiYellow
+	case "b":
+		return AnsiBlue
+	case "p":
+		return AnsiPurple
+	case "c":
+		return AnsiCyan
+	default:
+		panic(fmt.Errorf("cannot map string '%s' to ansi color", s))
 	}
-	return fmt.Sprint(a...)
 }
 
-func Sprintf(format string, a ...any) string {
-	return fmt.Sprintf(clr(format), a...)
-}
-
-func Sprintln(a ...any) string {
+func CPrint(s string, a ...any) {
+	c := stoc(s)
 	for i := range a {
-		a[i] = clr(fmt.Sprint(a[i]))
+		a[i] = clr(fmt.Sprint(a[i]), c)
 	}
-	return fmt.Sprintln(a...)
+	fmt.Print(c)
+	fmt.Print(a...)
+	fmt.Print(AnsiReset)
 }
 
-func clr(str string) string {
+func CPrintf(s string, format string, a ...any) {
+	c := stoc(s)
+	fmt.Print(c)
+	fmt.Printf(clr(format, c), a...)
+	fmt.Print(AnsiReset)
+}
+
+func CPrintln(s string, a ...any) {
+	c := stoc(s)
+	for i := range a {
+		a[i] = clr(fmt.Sprint(a[i]), c)
+	}
+	fmt.Print(c)
+	fmt.Println(a...)
+	fmt.Print(AnsiReset)
+}
+
+func clr(str string, reset AnsiColor) string {
 	for regex, color := range regexps {
 		matches := regex.FindAllStringSubmatch(str, -1)
 		for _, match := range matches {
-			str = strings.Replace(str, match[0], color+match[1]+AnsiReset, 1)
+			str = strings.Replace(str, match[0], color+match[1]+reset, 1)
 		}
 	}
 	return str
