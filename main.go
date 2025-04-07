@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,36 +36,19 @@ func sliceContains[T comparable](slice []T, search T) bool {
 	return false
 }
 
-func isGitRepository(path string) (isGitRepository bool, subdirectories []string) {
-	for _, file := range must2(os.ReadDir(path)) {
-		if !file.IsDir() {
-			continue
-		}
-		if file.Name() == ".git" {
-			return true, []string{}
-		}
-		subdirectory := filepath.Join(path, file.Name())
-		subdirectories = append(subdirectories, subdirectory)
-	}
-	return false, subdirectories
-}
-
 func findGitRepositories() []string {
-	currentDirectory := must2(os.Getwd())
-	searchPaths := []string{currentDirectory}
-	repositoryPaths := []string{}
-	for len(searchPaths) > 0 {
-		searchIndex := len(searchPaths) - 1
-		searchPath := searchPaths[searchIndex]
-		searchPaths = searchPaths[:searchIndex]
-		isGitRepository, subdirectories := isGitRepository(searchPath)
-		if isGitRepository {
-			repositoryPaths = append(repositoryPaths, searchPath)
-		} else {
-			searchPaths = append(searchPaths, subdirectories...)
+	var paths []string
+	wd := must2(os.Getwd())
+	filepath.WalkDir(wd, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
-	}
-	return repositoryPaths
+		if d.Name() == ".git" {
+			paths = append(paths, filepath.Dir(path))
+		}
+		return nil
+	})
+	return paths
 }
 
 func run(cmd *exec.Cmd) (output string, err error) {
@@ -150,26 +134,12 @@ func gitRemoveLocalBranches(path string) RunGitResult {
 
 func cleanGitRepository(path string) RunGitResult {
 	fmt.Println("Cleaning at", path)
-	runGitResult := gitResetHard(path)
-	if runGitResult.err != nil {
-		return runGitResult
-	}
-	runGitResult = gitCheckoutMaster(path)
-	if runGitResult.err != nil {
-		return runGitResult
-	}
-	runGitResult = gitClean(path)
-	if runGitResult.err != nil {
-		return runGitResult
-	}
-	runGitResult = gitPull(path)
-	if runGitResult.err != nil {
-		return runGitResult
-	}
-	runGitResult = gitRemoveLocalBranches(path)
-	if runGitResult.err != nil {
-		return runGitResult
-	}
+	var runGitResult RunGitResult
+	runGitResult = gitResetHard(path);           if runGitResult.err != nil { return runGitResult }
+	runGitResult = gitCheckoutMaster(path);      if runGitResult.err != nil { return runGitResult }
+	runGitResult = gitClean(path);               if runGitResult.err != nil { return runGitResult }
+	runGitResult = gitPull(path);                if runGitResult.err != nil { return runGitResult }
+	runGitResult = gitRemoveLocalBranches(path); if runGitResult.err != nil { return runGitResult }
 	fmt.Println("Cleaned at", path)
 	return RunGitResult{path, "", nil}
 }
