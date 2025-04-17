@@ -8,9 +8,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"sync"
 
-	"github.com/tobiashort/cfmt"
+	"github.com/tobiashort/worker"
 )
 
 type ExecutionResult struct {
@@ -80,7 +79,7 @@ func gitListBranches(path string) (branches []string, executionResult ExecutionR
 	return branches, executionResult
 }
 
-func gitCheckoutMaster(path string) ExecutionResult {
+func gitCheckoutMain(path string) ExecutionResult {
 	branches, executionResult := gitListBranches(path)
 	if executionResult.err != nil {
 		return executionResult
@@ -126,13 +125,14 @@ func gitRemoveLocalBranches(path string) ExecutionResult {
 	return ExecutionResult{path, "", nil}
 }
 
-func cleanGitRepository(path string, waitGroup *sync.WaitGroup) {
+func cleanGitRepository(path string, worker worker.Worker) {
 	var executionResult ExecutionResult
+	worker.Printf(path)
 	executionResult = gitResetHard(path)
 	if executionResult.err != nil {
 		goto errorCase
 	}
-	executionResult = gitCheckoutMaster(path)
+	executionResult = gitCheckoutMain(path)
 	if executionResult.err != nil {
 		goto errorCase
 	}
@@ -148,23 +148,23 @@ func cleanGitRepository(path string, waitGroup *sync.WaitGroup) {
 	if executionResult.err != nil {
 		goto errorCase
 	}
-	cfmt.Println("[#g{DONE}]", path)
-	waitGroup.Done()
+	worker.Logf("[#g{DONE}] %s\n", path)
+	worker.Done()
 	return
 errorCase:
-	cfmt.Println("[#r{ERROR}]", path)
-	fmt.Println(executionResult.err)
-	fmt.Println(executionResult.output)
-	waitGroup.Done()
+	worker.Logf("[#r{ERROR}] %s\n", path)
+	worker.Logf("%s", executionResult.err)
+	worker.Logf(executionResult.output)
+	worker.Done()
 	return
 }
 
 func main() {
 	gitRepositories := findGitRepositories()
-	waitGroup := sync.WaitGroup{}
-	waitGroup.Add(len(gitRepositories))
+	pool := worker.NewPool(5)
 	for _, path := range gitRepositories {
-		go cleanGitRepository(path, &waitGroup)
+		worker := pool.GetWorker()
+		go cleanGitRepository(path, worker)
 	}
-	waitGroup.Wait()
+	pool.Wait()
 }

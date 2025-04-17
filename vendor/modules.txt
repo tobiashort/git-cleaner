@@ -1,3 +1,9 @@
-# github.com/tobiashort/cfmt v0.0.0-20250407195538-de432e3d520a
+# github.com/tobiashort/ansi v0.0.0-20250416201302-7f32a30d024d
+## explicit; go 1.24.1
+github.com/tobiashort/ansi
+# github.com/tobiashort/cfmt v0.0.0-20250417053541-b0e7c089916d
 ## explicit; go 1.24.1
 github.com/tobiashort/cfmt
+# github.com/tobiashort/worker v0.0.0-20250417155001-de3dad31c73d
+## explicit; go 1.24.2
+github.com/tobiashort/worker
