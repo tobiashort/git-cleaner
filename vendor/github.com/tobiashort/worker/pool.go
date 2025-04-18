@@ -2,10 +2,12 @@ package worker
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"sync"
 
 	"github.com/tobiashort/ansi"
+	"github.com/tobiashort/isatty"
 )
 
 type Pool interface {
@@ -24,17 +26,19 @@ func NewPool(cap int) Pool {
 	pool.cap = cap
 	pool.workers = make([]*worker, cap)
 	pool.mutex = sync.Mutex{}
-	for range cap {
-		fmt.Print(ansi.EraseEntireLine)
-		fmt.Println()
+	if isatty.IsTerminal(os.Stdout) {
+		for range cap {
+			fmt.Print(ansi.EraseEntireLine)
+			fmt.Println()
+		}
+		fmt.Print(ansi.MoveCursorUp(pool.cap))
 	}
-	fmt.Print(ansi.MoveCursorUp(pool.cap))
 	for i := range cap {
 		pool.workers[i] = &worker{
 			num:  i + 1,
 			pool: pool,
 			done: true,
-			msg:  "intialized",
+			msg:  "",
 		}
 		pool.print(pool.workers[i])
 	}
@@ -64,32 +68,40 @@ func (p *pool) Wait() {
 			break
 		}
 	}
-	fmt.Print(ansi.EraseFromCursorToEndOfScreen)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(ansi.EraseFromCursorToEndOfScreen)
+	}
 }
 
 func (p *pool) print(w *worker) {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-	capLen := len(strconv.Itoa(p.cap))
-	prefixFmt := fmt.Sprintf("[worker %%%dd] ", capLen)
-	fmt.Print(ansi.MoveCursorDown(w.num))
-	fmt.Print(ansi.EraseEntireLine)
-	fmt.Printf(prefixFmt, w.num)
-	fmt.Print(w.msg)
-	fmt.Print(ansi.MoveCursorToColumn(0))
-	fmt.Print(ansi.MoveCursorUp(w.num))
+	if isatty.IsTerminal(os.Stdout) {
+		p.mutex.Lock()
+		defer p.mutex.Unlock()
+		capLen := len(strconv.Itoa(p.cap))
+		prefixFmt := fmt.Sprintf("[Worker %%%dd] ", capLen)
+		fmt.Print(ansi.MoveCursorDown(w.num))
+		fmt.Print(ansi.EraseEntireLine)
+		fmt.Printf(prefixFmt, w.num)
+		fmt.Print(w.msg)
+		fmt.Print(ansi.MoveCursorToColumn(0))
+		fmt.Print(ansi.MoveCursorUp(w.num))
+	}
 }
 
 func (p *pool) log(w *worker) {
 	p.mutex.Lock()
-	fmt.Print(ansi.EraseEntireLine)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(ansi.EraseEntireLine)
+	}
 	fmt.Printf("%s\n", w.msg)
 	w.msg = ""
-	for range p.cap {
-		fmt.Print(ansi.EraseEntireLine)
-		fmt.Println()
+	if isatty.IsTerminal(os.Stdout) {
+		for range p.cap {
+			fmt.Print(ansi.EraseEntireLine)
+			fmt.Println()
+		}
+		fmt.Print(ansi.MoveCursorUp(p.cap))
 	}
-	fmt.Print(ansi.MoveCursorUp(p.cap))
 	p.mutex.Unlock()
 	for _, w := range p.workers {
 		p.print(w)

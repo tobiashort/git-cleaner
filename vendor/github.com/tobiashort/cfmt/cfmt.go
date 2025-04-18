@@ -3,10 +3,12 @@ package cfmt
 import (
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 
 	"github.com/tobiashort/ansi"
+	"github.com/tobiashort/isatty"
 )
 
 var regexps = map[*regexp.Regexp]ansi.Color{
@@ -100,16 +102,24 @@ func CPrint(s string, a ...any) {
 	for i := range a {
 		a[i] = clr(fmt.Sprint(a[i]), c)
 	}
-	fmt.Print(c)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(c)
+	}
 	fmt.Print(a...)
-	fmt.Print(ansi.Reset)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(ansi.Reset)
+	}
 }
 
 func CPrintf(s string, format string, a ...any) {
 	c := stoc(s)
-	fmt.Print(c)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(c)
+	}
 	fmt.Printf(clr(format, c), a...)
-	fmt.Print(ansi.Reset)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(ansi.Reset)
+	}
 }
 
 func CPrintln(s string, a ...any) {
@@ -117,16 +127,24 @@ func CPrintln(s string, a ...any) {
 	for i := range a {
 		a[i] = clr(fmt.Sprint(a[i]), c)
 	}
-	fmt.Print(c)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(c)
+	}
 	fmt.Println(a...)
-	fmt.Print(ansi.Reset)
+	if isatty.IsTerminal(os.Stdout) {
+		fmt.Print(ansi.Reset)
+	}
 }
 
 func clr(str string, reset ansi.Color) string {
 	for regex, color := range regexps {
 		matches := regex.FindAllStringSubmatch(str, -1)
 		for _, match := range matches {
-			str = strings.Replace(str, match[0], color+match[1]+reset, 1)
+			if isatty.IsTerminal(os.Stdout) {
+				str = strings.Replace(str, match[0], color+match[1]+reset, 1)
+			} else {
+				str = strings.Replace(str, match[0], match[1], 1)
+			}
 		}
 	}
 	return str
