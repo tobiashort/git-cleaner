@@ -1,5 +1,3 @@
-//go:build ignore
-
 package main
 
 import (
@@ -9,6 +7,7 @@ import (
 
 func main() {
 	cmd := exec.Command("go", "build", "-o", "build/git-cleaner")
+	cmd.Env = append(cmd.Environ(), "CGO_ENABLED=1")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
