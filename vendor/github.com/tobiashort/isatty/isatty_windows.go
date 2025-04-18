@@ -1,8 +1,9 @@
-//go:build linux || darwin
+//go:build windows
 
 package isatty
 
-//#include <unistd.h>
+//#include <stdio.h>
+//#include <conio.h>
 import "C"
 
 import (
@@ -14,5 +15,5 @@ func IsTerminal(f *os.File) bool {
 }
 
 func IsTerminalFd(fd int) bool {
-	return int(C.isatty(C.int(fd))) == 1
+	return C._isatty(C.int(fd)) == 1
 }
