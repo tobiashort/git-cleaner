@@ -1,8 +1,8 @@
 github.com/tobiashort/ansi v0.0.0-20250416201302-7f32a30d024d h1:fRlgbWGhXjTW+a21e/l/N62IDabBAo8McEM3Uz3ksrE=
 github.com/tobiashort/ansi v0.0.0-20250416201302-7f32a30d024d/go.mod h1:b2WFClnpZoiubreCPu38KwTIBZIMxFTuejr1fsQL9U8=
-github.com/tobiashort/cfmt v0.0.0-20250418181817-0d9f7fa8b5c6 h1:OAODi1fvqg7GKrvPql6WFeIxzg5r9DHLUi28cUr0Izc=
-github.com/tobiashort/cfmt v0.0.0-20250418181817-0d9f7fa8b5c6/go.mod h1:Qg1gSTQyv3Xdb8bbpStMX8YjJFYuxVupr5U+Vm+bEHo=
-github.com/tobiashort/isatty v0.0.0-20250419060500-2ab364d57388 h1:ui/hX0Z4erO0zT4egU78cXAAsym6Ovm35H3p04o7UQc=
-github.com/tobiashort/isatty v0.0.0-20250419060500-2ab364d57388/go.mod h1:KqRjpp4GPCJ4koQ9sva+8Qn04UXw/4xbHxo50KEN+fo=
-github.com/tobiashort/worker v0.0.0-20250418181928-f09dedd71db2 h1:gPVnaUeN6LM8qX86XHLcbuU3tjR59cY0VRB0QMd5EFg=
-github.com/tobiashort/worker v0.0.0-20250418181928-f09dedd71db2/go.mod h1:2ueUKZHGmYRjVkG/AlUn1HJiF37LxIplPB6Na8yykVU=
+github.com/tobiashort/cfmt v0.0.0-20250419072841-9ad53823ae44 h1:WZj2rMwmNXZFa+75Hebhwv33IjiAFwoUlAX8iJ8JWJU=
+github.com/tobiashort/cfmt v0.0.0-20250419072841-9ad53823ae44/go.mod h1:815T7zrm0Q4Bfmg2L2U9KSJCz8qvdh4dyHc+kZXrOh8=
+github.com/tobiashort/isatty v0.0.0-20250419072540-9a4b01f48059 h1:OecrBlSf4CYZ3tXmYg5Hof3GFP8gihplyMiJMrHUOcA=
+github.com/tobiashort/isatty v0.0.0-20250419072540-9a4b01f48059/go.mod h1:KqRjpp4GPCJ4koQ9sva+8Qn04UXw/4xbHxo50KEN+fo=
+github.com/tobiashort/worker v0.0.0-20250419072946-c24c719f2718 h1:4GOssNq4EPZLKQrmzRub0BehS92/Osf62CU7IvcM0pM=
+github.com/tobiashort/worker v0.0.0-20250419072946-c24c719f2718/go.mod h1:R/Ifzcnag1A4xr8ejABl40q7kyXHbsbhN9N2J+o5oas=

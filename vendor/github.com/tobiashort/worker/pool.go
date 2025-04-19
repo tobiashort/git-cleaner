@@ -2,7 +2,6 @@ package worker
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"sync"
 
@@ -26,7 +25,7 @@ func NewPool(cap int) Pool {
 	pool.cap = cap
 	pool.workers = make([]*worker, cap)
 	pool.mutex = sync.Mutex{}
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		for range cap {
 			fmt.Print(ansi.EraseEntireLine)
 			fmt.Println()
@@ -68,13 +67,13 @@ func (p *pool) Wait() {
 			break
 		}
 	}
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(ansi.EraseFromCursorToEndOfScreen)
 	}
 }
 
 func (p *pool) print(w *worker) {
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		p.mutex.Lock()
 		defer p.mutex.Unlock()
 		capLen := len(strconv.Itoa(p.cap))
@@ -90,12 +89,12 @@ func (p *pool) print(w *worker) {
 
 func (p *pool) log(w *worker) {
 	p.mutex.Lock()
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(ansi.EraseEntireLine)
 	}
 	fmt.Printf("%s\n", w.msg)
 	w.msg = ""
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		for range p.cap {
 			fmt.Print(ansi.EraseEntireLine)
 			fmt.Println()

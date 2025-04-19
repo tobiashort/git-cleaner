@@ -9,10 +9,7 @@ import (
 	"os"
 )
 
-func IsTerminal(f *os.File) bool {
-	return IsTerminalFd(int(f.Fd()))
-}
-
-func IsTerminalFd(fd int) bool {
-	return int(C.isatty(C.int(fd))) == 1
+// Checks whether stdout is a terminal or not
+func IsTerminal() bool {
+	return int(C.isatty(C.int(os.Stdout.Fd()))) == 1
 }

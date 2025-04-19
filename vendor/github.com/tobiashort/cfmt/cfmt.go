@@ -3,7 +3,6 @@ package cfmt
 import (
 	"fmt"
 	"io"
-	"os"
 	"regexp"
 	"strings"
 
@@ -102,22 +101,22 @@ func CPrint(s string, a ...any) {
 	for i := range a {
 		a[i] = clr(fmt.Sprint(a[i]), c)
 	}
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(c)
 	}
 	fmt.Print(a...)
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(ansi.Reset)
 	}
 }
 
 func CPrintf(s string, format string, a ...any) {
 	c := stoc(s)
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(c)
 	}
 	fmt.Printf(clr(format, c), a...)
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(ansi.Reset)
 	}
 }
@@ -127,11 +126,11 @@ func CPrintln(s string, a ...any) {
 	for i := range a {
 		a[i] = clr(fmt.Sprint(a[i]), c)
 	}
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(c)
 	}
 	fmt.Println(a...)
-	if isatty.IsTerminal(os.Stdout) {
+	if isatty.IsTerminal() {
 		fmt.Print(ansi.Reset)
 	}
 }
@@ -140,7 +139,7 @@ func clr(str string, reset ansi.Color) string {
 	for regex, color := range regexps {
 		matches := regex.FindAllStringSubmatch(str, -1)
 		for _, match := range matches {
-			if isatty.IsTerminal(os.Stdout) {
+			if isatty.IsTerminal() {
 				str = strings.Replace(str, match[0], color+match[1]+reset, 1)
 			} else {
 				str = strings.Replace(str, match[0], match[1], 1)

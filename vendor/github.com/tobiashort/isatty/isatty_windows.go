@@ -6,14 +6,7 @@ package isatty
 //#include <io.h>
 import "C"
 
-import (
-	"os"
-)
-
-func IsTerminal(f *os.File) bool {
-	return IsTerminalFd(int(f.Fd()))
-}
-
-func IsTerminalFd(fd int) bool {
-	return C._isatty(C.int(fd)) != 0
+// Checks whether stdout is a terminal or not
+func IsTerminal() bool {
+	return C._isatty(C.int(1)) != 0
 }
