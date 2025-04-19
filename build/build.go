@@ -3,15 +3,10 @@ package main
 import (
 	"os"
 	"os/exec"
-	"runtime"
 )
 
 func main() {
-	bin := "git-cleaner"
-	if runtime.GOOS == "windows" {
-		bin += ".exe"
-	}
-	cmd := exec.Command("go", "build", "-o", bin)
+	cmd := exec.Command("go", "build", "-o", Bin)
 	cmd.Env = append(cmd.Environ(), "CGO_ENABLED=1")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout

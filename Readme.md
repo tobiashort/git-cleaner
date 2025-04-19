@@ -8,3 +8,9 @@ Attention! Data loss!
 4. checkout master or main
 5. pull -p
 6. delete all local branches
+
+## Build
+
+```shell
+go run ./build
+```

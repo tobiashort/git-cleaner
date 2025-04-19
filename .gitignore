@@ -1,3 +1,2 @@
-bin
-git-cleaner
-git-cleaner.exe
+build/git-cleaner
+build\\git-cleaner.exe
