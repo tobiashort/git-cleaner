@@ -3,7 +3,7 @@
 package isatty
 
 //#include <stdio.h>
-//#include <conio.h>
+//#include <io.h>
 import "C"
 
 import (

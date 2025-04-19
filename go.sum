@@ -10,6 +10,8 @@ github.com/tobiashort/isatty v0.0.0-20250418132835-4b46a376688b h1:y7mn0rxY+ro+i
 github.com/tobiashort/isatty v0.0.0-20250418132835-4b46a376688b/go.mod h1:owWnfksJ7ex/zNs38gqmqyKJ7JcmT7qbGOC08Dvvi8U=
 github.com/tobiashort/isatty v0.0.0-20250418181654-926c43b7f44f h1:R/cAaEExUfPbl39tQoWEmMp2+qtvA9IwIIPyI45Rp0c=
 github.com/tobiashort/isatty v0.0.0-20250418181654-926c43b7f44f/go.mod h1:KqRjpp4GPCJ4koQ9sva+8Qn04UXw/4xbHxo50KEN+fo=
+github.com/tobiashort/isatty v0.0.0-20250419045931-143da0cbf243 h1:1jIv2KmeMAKJqpj+LLQm1+uYyNPsVpGqqDNclxT2NDk=
+github.com/tobiashort/isatty v0.0.0-20250419045931-143da0cbf243/go.mod h1:KqRjpp4GPCJ4koQ9sva+8Qn04UXw/4xbHxo50KEN+fo=
 github.com/tobiashort/worker v0.0.0-20250417194649-d91b1dc28145 h1:deB7TRhB58y+EHj5c3AxhlrqXW12m/kU14cEckalwZU=
 github.com/tobiashort/worker v0.0.0-20250417194649-d91b1dc28145/go.mod h1:N5I3b7maKDKOM0x5RZ3mjO+16cL4JayZ4CWriJ2VXUE=
 github.com/tobiashort/worker v0.0.0-20250418160949-7ce0327a69db h1:M3v1A1kvAzedAc0KHYbLTJq5VxuPBzZ2ve/wSfTeNk4=
