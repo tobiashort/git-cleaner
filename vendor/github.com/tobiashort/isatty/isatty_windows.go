@@ -15,5 +15,5 @@ func IsTerminal(f *os.File) bool {
 }
 
 func IsTerminalFd(fd int) bool {
-	return C._isatty(C.int(fd)) == 1
+	return C._isatty(C.int(fd)) != 0
 }
