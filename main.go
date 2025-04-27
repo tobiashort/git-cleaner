@@ -64,7 +64,7 @@ func runGit(path string, args ...string) ExecutionResult {
 }
 
 func gitResetHard(path string) ExecutionResult {
-	return runGit(path, "reset", "--hard")
+	return runGit(path, "reset", "--hard", "--recurse-submodules")
 }
 
 func gitListBranches(path string) (branches []string, executionResult ExecutionResult) {
