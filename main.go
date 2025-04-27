@@ -131,11 +131,11 @@ func gitRemoveLocalBranches(path string) ExecutionResult {
 func cleanGitRepository(path string, worker worker.Worker) {
 	var executionResult ExecutionResult
 	worker.Printf(path)
-	executionResult = gitResetHard(path)
+	executionResult = gitCheckoutMain(path)
 	if executionResult.err != nil {
 		goto errorCase
 	}
-	executionResult = gitCheckoutMain(path)
+	executionResult = gitResetHard(path)
 	if executionResult.err != nil {
 		goto errorCase
 	}
