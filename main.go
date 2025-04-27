@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/tobiashort/worker"
 )
+
+var flagRemoveLocalBranches bool
 
 type ExecutionResult struct {
 	path   string
@@ -144,9 +147,11 @@ func cleanGitRepository(path string, worker worker.Worker) {
 	if executionResult.err != nil {
 		goto errorCase
 	}
-	executionResult = gitRemoveLocalBranches(path)
-	if executionResult.err != nil {
-		goto errorCase
+	if flagRemoveLocalBranches {
+		executionResult = gitRemoveLocalBranches(path)
+		if executionResult.err != nil {
+			goto errorCase
+		}
 	}
 	worker.Logf("[#g{DONE}] %s\n", path)
 	worker.Done()
@@ -160,6 +165,8 @@ errorCase:
 }
 
 func main() {
+	flag.BoolVar(&flagRemoveLocalBranches, "remove-local-branches", false, "removes all local branches")
+	flag.Parse()
 	gitRepositories := findGitRepositories()
 	pool := worker.NewPool(5)
 	for _, path := range gitRepositories {
